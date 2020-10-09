@@ -259,25 +259,41 @@ namespace Piranha.AttributeBuilder
 
         private ContentGroup GetContentGroup(Type type)
         {
-            var attr = type.GetCustomAttribute<ContentGroupAttribute>(false);
+            Type contentGroupType = type;
+            var attr = contentGroupType.GetCustomAttribute<ContentGroupAttribute>(false);
+
+            while (attr == null && contentGroupType.BaseType != null)
+            {
+                contentGroupType = contentGroupType.BaseType;
+                attr = contentGroupType.GetCustomAttribute<ContentGroupAttribute>(false);
+            }
 
             if (attr != null)
             {
                 // Create the content group
-                return new ContentGroup
+                var contentGroup = new ContentGroup
                 {
                     Id = attr.Id,
                     Title = attr.Title,
-                    CLRType = type.AssemblyQualifiedName,
+                    CLRType = contentGroupType.AssemblyQualifiedName,
                     Icon = attr.Icon
                 };
+
+                if (string.IsNullOrEmpty(contentGroup.Id))
+                {
+                    contentGroup.Id = new string(contentGroupType.Name.Where(Char.IsLetter).ToArray());
+                }
+
+                contentGroup.Id = contentGroup.Id.ToLower();
+
+                return contentGroup;
             }
             return null;
         }
 
         private ContentType GetContentType(Type type)
         {
-            var group = type.GetCustomAttribute<ContentGroupAttribute>();
+            var group = GetContentGroup(type);
             if (group == null)
             {
                 throw new ArgumentException($"Content Group is missing for the Content Type { type.Name }");
@@ -301,7 +317,7 @@ namespace Piranha.AttributeBuilder
 
                 return new ContentType
                 {
-                    Id = attr.Id,
+                    Id = attr.Id.ToLower(),
                     CLRType = type.GetTypeInfo().AssemblyQualifiedName,
                     Title = attr.Title,
                     Group = group.Id,

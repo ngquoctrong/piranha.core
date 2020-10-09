@@ -56,7 +56,7 @@ namespace Piranha.Services
         {
             if (string.IsNullOrEmpty(typeId))
             {
-                typeId = typeof(T).Name;
+                typeId = typeof(T).Name.ToLower();
             }
 
             var type = App.ContentTypes.GetById(typeId);

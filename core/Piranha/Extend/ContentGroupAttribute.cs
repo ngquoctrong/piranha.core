@@ -15,8 +15,6 @@ namespace Piranha.Extend
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class ContentGroupAttribute : Attribute
     {
-        private string _title;
-
         /// <summary>
         /// Gets/sets the unique id.
         /// </summary>
@@ -25,19 +23,7 @@ namespace Piranha.Extend
         /// <summary>
         /// Gets/sets the title.
         /// </summary>
-        public string Title
-        {
-            get => _title;
-            set
-            {
-                _title = value;
-
-                if (string.IsNullOrWhiteSpace(Id))
-                {
-                    Id = Utils.GenerateInteralId(value);
-                }
-            }
-        }
+        public string Title { get; set; }
 
         /// <summary>
         /// Gets/set the icon css.
